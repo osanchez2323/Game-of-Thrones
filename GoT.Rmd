@@ -1,0 +1,99 @@
+---
+title: "Game of Thrones"
+author: "Oscar Sanchez"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+![Caption for the picture.](Downloads/Game-of-Thrones-Logo.jpg)
+
+<center> <h1>The. Greatest. Show. Ever.</h1> </center>
+
+
+DUM-DUM-DUH-DUH-DUH-DUM...DUH-DUH-DUM. Yes, that was my lame attempt at singing the [greatest sound](https://www.youtube.com/watch?v=s7L2PVdrb_8) heard on Sunday night. But we're not here to talk about my inspiring talent. We're here to talk Game of Thrones. Game of Thrones is the greatest, most well written television experience ever. Yes, ever. There's knights, dragons, battles, love affairs, family affairs, family love affairs (cough, cough Cersei and Jamie), and ZOMBIES. What's not to love! However, the most riveting aspect of this television show is it's unpredictable story line. When you least expect it, something out of the loop happens. Whether it's your favorite charatcer meeting their fate or a betrayal you just never saw coming. And what's the motif? This bad boy right here:
+
+<center> ![Caption for the picture.](Downloads/iron-throne.jpg) </center>
+
+
+
+
+```{r, echo=FALSE}
+battles <- read.csv("Downloads/game-of-thrones/battles.csv", header=TRUE, stringsAsFactors=TRUE, na.strings=c("", "NA", ""))
+deaths <- read.csv("Downloads/game-of-thrones/character-deaths.csv", header=TRUE, stringsAsFactors=TRUE, na.strings=c("", "NA", ""))
+predictions <- read.csv("Downloads/game-of-thrones/character-predictions.csv", header=TRUE, stringsAsFactors=TRUE, na.strings=c("", "NA", ""))
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+#Cleaning the Data
+library(dplyr)
+battles <- battles %>% 
+  select(name, year, attacker_king, defender_king, attacker_outcome,battle_type, 
+         major_death, attacker_size, defender_size, location, region)
+#year column
+battles$year <- as.numeric(battles$year)
+```
+
+```{r, echo=FALSE, warning=FALSE}
+library(ggplot2)
+battlefield <- ggplot(data = battles, aes(x = factor(attacker_king), fill=attacker_outcome)) +
+  geom_bar(aes(fill=factor(attacker_king)), width=1, colour="black") +
+  facet_wrap(~ region) + coord_flip() +
+  ggtitle("Regions and Battles") +
+  xlab("Attacker Kings") + ylab("No of Battles")
+battlefield
+
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+library(ggplot2)
+
+army <- ggplot(data = battles, aes(y = attacker_size, x = defender_size)) +
+  geom_smooth(method = "lm", se = F, fullrange = T, colour = "red", size = 1) +
+  geom_point(aes(color=attacker_outcome)) + 
+  ggtitle("Size of Attacker vs Size of Defender on Outcome of War") +
+  xlab("Size of Defender") + ylab("Size of Attacker")
+army
+
+```
+
+```{r, echo=FALSE}
+wins <- as.data.frame(table(battles$attacker_king,battles$attacker_outcome)) #Attacker Data Frame
+names(wins)[1:2]<-c("King","Outcome") #Naming
+wins <- filter(wins, King!="",Outcome!="") #Remove unknown data
+
+### Plot
+winsplot <- ggplot(wins, aes(King, Freq, fill = Outcome)) +
+  geom_bar(stat = 'identity', col = 'black') +
+  ggtitle('Attacker King Success') +
+  theme(axis.text.x = element_text(angle = 45,hjust = 1))+
+  scale_fill_manual(values=c("firebrick","deepskyblue"))
+winsplot
+
+```
+
+```{r, echo=FALSE, warning=FALSE}
+g2 <- ggplot(aes(x = factor(battle_type)), data = battles) + 
+    geom_bar(aes(fill=factor(battle_type)), width=1, colour="black") +
+    ggtitle("Battle Type") +
+    xlab("Battle Type") + ylab("No of Battles")
+print(g2)
+
+```
+
+
+```{r, echo=FALSE}
+p <- ggplot(data = battles, aes(x = factor(attacker_king), fill=attacker_outcome)) +
+    geom_bar(aes(fill=factor(attacker_king)), width=1, colour="black") +
+    facet_wrap(~ region) + coord_flip() +
+    ggtitle("Regions and Battles") +
+    xlab("Attacker Kings") + ylab("No of Battles")
+print(p)
+
+```
+
+
